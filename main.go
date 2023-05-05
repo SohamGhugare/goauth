@@ -1,8 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"goauth/initializers"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func init() {
@@ -10,6 +12,13 @@ func init() {
 }
 
 func main() {
-	fmt.Println("Hello World")
+	r := gin.Default()
 
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Pong!",
+		})
+	})
+
+	r.Run()
 }
