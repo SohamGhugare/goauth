@@ -1,8 +1,8 @@
 package main
 
 import (
+	"goauth/controllers"
 	"goauth/initializers"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,11 +16,7 @@ func init() {
 func main() {
 	r := gin.Default()
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Pong!",
-		})
-	})
+	r.POST("/signup", controllers.Signup)
 
 	r.Run()
 }
