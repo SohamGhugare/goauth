@@ -2,8 +2,11 @@ package middleware
 
 import (
 	"fmt"
+	"goauth/initializers"
+	"goauth/models"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -29,7 +32,25 @@ func RequireAuth(c *gin.Context){
 	})
 	
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Println(claims["sub"])
+		// Checking the expiry
+		if float64(time.Now().Unix()) > claims["exp"].(float64) {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"message": "Token expired. Relog to authorize.",
+			})
+		}
+
+		// Fetching the user
+		var user models.User
+		initializers.DB.First(&user, claims["sub"])
+
+		if user.ID == 0{
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+				"message": "User not found.",
+			})
+		}
+
+		c.Set("user", user)
+
 	} else {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"message": "Invalid access token",
